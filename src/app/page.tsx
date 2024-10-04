@@ -7,6 +7,7 @@ import { ProductsList } from "@/data/ProductsList";
 import { addNewItem } from "@/hooks/addNewItem";
 import { findItemById } from "@/hooks/findItemById";
 import {
+  clearDB,
   createIndexedDb,
   getItemsAtDB,
   modifyItemsAtDB,
@@ -32,31 +33,31 @@ function page() {
     });
   }
 
+  function handleClickRemove(id: number) {
+    setShoopingCartList((currentCart) => {
+      const updatedCart = currentCart.map(item => 
+        item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+      );
+      return updatedCart.filter(item => item.quantity > 0);
+    });
+  }
+
   useEffect(() => {
     createIndexedDb();
     getItemsAtDB((item) => setShoopingCartList(item));
     setLoading(false);
   }, []);
+  
   useEffect(() => {
     if (shoopingCartList.length > 0) {
       modifyItemsAtDB(shoopingCartList);
+    }else{
+      clearDB()
     }
   }, [shoopingCartList]);
 
-  function handleClickRemove(id: number) {
-    setShoopingCartList((currentCart) => {
-      const item = findItemById(currentCart, id);
-      if (!item) return currentCart;
-      if (item.quantity <= 1) {
-        return currentCart.filter((item) => item.id !== id);
-      } else {
-        return updateQuantity(currentCart, id, -1);
-      }
-    });
-  }
-
   return (
-    <main className="place-items-center items-center h-full relative">
+    <main className="items-center h-full relative">
       <ShoopingCart.OpenButton
         menuIsOpen={menuIsOpen}
         setMenuIsOpen={setMenuIsOpen}
@@ -64,25 +65,20 @@ function page() {
       {menuIsOpen && (
         <ShoopingCart.Root>
           {loading && <Loading />}
-          {shoopingCartList.length > 0 &&
-            !loading &&
+          {!loading &&
             shoopingCartList.map((item) => {
               return (
-                <div className="flex w-full justify-between" key={item.id}>
-                  <div className="flex">
-                    <ShoopingCart.Item.Image image={item.image} />
-                    <div className="flex flex-col ">
-                      <ShoopingCart.Item.Name name={item.name} />
-                      <div className="">
-                        <ShoopingCart.Item.Price price={item.price} />
-                        <ShoopingCart.Item.RemoveButton
-                          onClick={() => handleClickRemove(item.id)}
-                          id={item.id}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                <div className="flex w-full gap-2" key={item.id}>
+                  <ShoopingCart.Item.Image image={item.image} />
+                  <div className="flex flex-col grow items-start">
+                  <ShoopingCart.Item.Name name={item.name} />
+                  <ShoopingCart.Item.Price price={item.price} />
+                  <ShoopingCart.Item.RemoveButton
+                    onClick={() => handleClickRemove(item.id)}
+                    id={item.id}
+                  />
                   <ShoopingCart.Item.Quantity quantity={item.quantity} />
+                  </div>
                 </div>
               );
             })}

@@ -41,3 +41,12 @@ export const getItemsAtDB = (callback: (items: ProductType[]) => void) => {
 		};
 	};
 };
+export const clearDB = ()=>{
+	const request = window.indexedDB.open("UserCartDb", 1);
+	request.onsuccess = () => {
+		const db = request.result;
+		const transaction = db.transaction("userCart", "readwrite");
+		const CartObjectStore = transaction.objectStore("userCart");
+		CartObjectStore.clear();
+	};
+}
