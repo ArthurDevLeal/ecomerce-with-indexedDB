@@ -5,7 +5,7 @@ interface ShoopingCartRemoveItemProps {
 }
 export default function ShoopingCartRemoveItem({ onClick, id }: ShoopingCartRemoveItemProps) {
 	return (
-		<button className="bg-red-500 p-4 rounded-md" onClick={() => onClick(id)}>
+		<button className="bg-red-500 p-4 rounded-md w-fit" onClick={() => onClick(id)}>
 			<X color="#ffffff" />
 		</button>
 	);

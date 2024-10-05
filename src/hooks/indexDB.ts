@@ -12,19 +12,21 @@ export const createIndexedDb = () => {
 	};
 };
 export const modifyItemsAtDB = (filteredList: ProductType[]) => {
-	const request = window.indexedDB.open("UserCartDb", 1);
-	request.onsuccess = () => {
-		const db = request.result;
-		const transaction = db.transaction("userCart", "readwrite");
-		const CartObjectStore = transaction.objectStore("userCart");
-		const clearRequest = CartObjectStore.clear();
+  const request = window.indexedDB.open("UserCartDb", 1);
+  request.onsuccess = () => {
+    const db = request.result;
+    const transaction = db.transaction("userCart", "readwrite");
+    const CartObjectStore = transaction.objectStore("userCart");
+    const clearRequest = CartObjectStore.clear();
 
-		clearRequest.onsuccess = () => {
-			filteredList.forEach((item) => {
-				CartObjectStore.add(item);
-			});
-		};
-	};
+    clearRequest.onsuccess = () => {
+      filteredList.forEach((item) => {
+        if (item.quantity > 0) {
+          CartObjectStore.add(item);
+        }
+      });
+    };
+  };
 };
 export const getItemsAtDB = (callback: (items: ProductType[]) => void) => {
 	const request = window.indexedDB.open("UserCartDb", 1);
